@@ -1,0 +1,79 @@
+
+1. echo
+   - The echo command is used to display text or variables to the terminal.
+   Example:
+   echo "Hello, World!"
+   Output: Hello, World!
+
+2. ls
+   - The ls command lists the files and directories in the current directory.
+   Example:
+   ls
+   Output: file1.txt  file2.txt
+
+3. read
+   - The read command accepts input from the user in a script.
+   Example:
+   echo "Enter your name:"
+   read name
+   echo "Hello, $name"
+   
+4. cat
+   - The cat command is used to display the contents of a file.
+   Example:
+   cat file.txt
+   Output: Content of file.txt
+
+5. touch
+   - The touch command creates an empty file or updates the timestamp of an existing file.
+   Example:
+   touch newfile.txt
+   Output: Creates newfile.txt
+
+6. test
+   - The test command evaluates expressions like file properties, string comparisons, etc.
+   Example:
+   test -f file.txt && echo "File exists" || echo "File does not exist"
+   Output: File exists
+
+7. Loops:
+   - for loop: Repeats a set of commands for a specific number of iterations.
+     Example:
+     for i in {1..5}; do echo "Iteration $i"; done
+     
+   - while loop: Runs as long as a specified condition is true.
+     Example:
+     i=1; while [ $i -le 5 ]; do echo "Iteration $i"; ((i++)); done
+
+8. Arithmetic
+   - Use $(( )) for basic arithmetic operations.
+   Example:
+   a=5; b=3; sum=$((a + b)); echo $sum
+   Output: 8
+
+9. Comparison
+   - Numeric comparisons: -eq, -ne, -gt, -lt, -ge, -le.
+   Example:
+   if [ $a -gt $b ]; then echo "$a is greater than $b"; fi
+   Output: 5 is greater than 3
+
+   - String comparisons: =, !=.
+   Example:
+   if [ "$string1" = "$string2" ]; then echo "Strings are equal"; else echo "Strings are not equal"; fi
+
+10. Conditional Statements (if, else, elif)
+    - Execute commands based on conditions.
+    Example:
+    if [ -f file.txt ]; then echo "File exists"; else echo "File does not exist"; fi
+
+11. grep
+    - The grep command searches for patterns in files.
+    Example:
+    grep "error" log.txt
+    Output: Lines with "error" in log.txt
+
+12. sed
+    - The sed command is used for text manipulation like replacing or deleting text in files.
+    Example:
+    sed 's/hello/hi/' file.txt
+    Output: Replaces "hello" with "hi" in file.txt
