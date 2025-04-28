@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#define FIFO1 "fifo1"
+#define FIFO2 "fifo2"
+
+int main() {
+    int fd1, fd2;
+    char buffer[100];
+    pid_t pid;
+
+    // Create FIFOs
+    mkfifo(FIFO1, 0666);
+    mkfifo(FIFO2, 0666);
+
+    pid = fork();
+
+    if (pid > 0) { // Parent Process
+        printf("Enter a sentence:\n");
+        fgets(buffer, sizeof(buffer), stdin);
+
+        // Write to FIFO1
+        fd1 = open(FIFO1, O_WRONLY);
+        write(fd1, buffer, strlen(buffer) + 1);
+        close(fd1);
+
+        // Read result from FIFO2
+        fd2 = open(FIFO2, O_RDONLY);
+        read(fd2, buffer, sizeof(buffer));
+        printf("\nResult from child:\n%s\n", buffer);
+        close(fd2);
+
+        unlink(FIFO1);
+        unlink(FIFO2);
+    }
+    else { // Child Process
+        int chars = 0, words = 0, lines = 0;
+        FILE *file;
+
+        // Read from FIFO1
+        fd1 = open(FIFO1, O_RDONLY);
+        read(fd1, buffer, sizeof(buffer));
+        close(fd1);
+
+        // Count characters, words, lines
+        for (int i = 0; buffer[i] != '\0'; i++) {
+            chars++;
+            if (buffer[i] == ' ' || buffer[i] == '\n') words++;
+            if (buffer[i] == '\n') lines++;
+        }
+        words++;
+        if (lines == 0) lines = 1;
+
+        // Write counts to file
+        file = fopen("output.txt", "w");
+        fprintf(file, "Characters: %d\nWords: %d\nLines: %d\n", chars, words, lines);
+        fclose(file);
+
+        // Read from file
+        file = fopen("output.txt", "r");
+        fread(buffer, sizeof(char), 100, file);
+        fclose(file);
+
+        // Write to FIFO2
+        fd2 = open(FIFO2, O_WRONLY);
+        write(fd2, buffer, strlen(buffer) + 1);
+        close(fd2);
+
+        exit(0);
+    }
+
+    return 0;
+}

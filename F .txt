@@ -1,0 +1,153 @@
+#include <stdio.h>
+
+#define MAX 20
+
+void FCFS(int pages[], int n, int frames) {
+    int frame[frames], i, j, k = 0, faults = 0, found;
+    for (i = 0; i < frames; i++) frame[i] = -1;
+
+    printf("\n--- FCFS Page Replacement ---\n");
+
+    for (i = 0; i < n; i++) {
+        found = 0;
+        for (j = 0; j < frames; j++) {
+            if (frame[j] == pages[i]) {
+                found = 1;
+                break;
+            }
+        }
+        if (!found) {
+            frame[k] = pages[i];
+            k = (k + 1) % frames;
+            faults++;
+        }
+
+        printf("Frames: ");
+        for (j = 0; j < frames; j++) {
+            if (frame[j] != -1) printf("%d ", frame[j]);
+            else printf("- ");
+        }
+        printf("\n");
+    }
+
+    printf("Total Page Faults = %d\n", faults);
+}
+
+void LRU(int pages[], int n, int frames) {
+    int frame[frames], time[frames], i, j, k, faults = 0, found, least;
+
+    for (i = 0; i < frames; i++) frame[i] = -1;
+
+    printf("\n--- LRU Page Replacement ---\n");
+
+    for (i = 0; i < n; i++) {
+        found = 0;
+        for (j = 0; j < frames; j++) {
+            if (frame[j] == pages[i]) {
+                found = 1;
+                time[j] = i;
+                break;
+            }
+        }
+        if (!found) {
+            int min = 9999;
+            for (j = 0; j < frames; j++) {
+                if (time[j] < min) {
+                    min = time[j];
+                    least = j;
+                }
+            }
+            frame[least] = pages[i];
+            time[least] = i;
+            faults++;
+        }
+
+        printf("Frames: ");
+        for (j = 0; j < frames; j++) {
+            if (frame[j] != -1) printf("%d ", frame[j]);
+            else printf("- ");
+        }
+        printf("\n");
+    }
+
+    printf("Total Page Faults = %d\n", faults);
+}
+
+void Optimal(int pages[], int n, int frames) {
+    int frame[frames], i, j, k, faults = 0, found, farthest, idx;
+
+    for (i = 0; i < frames; i++) frame[i] = -1;
+
+    printf("\n--- Optimal Page Replacement ---\n");
+
+    for (i = 0; i < n; i++) {
+        found = 0;
+        for (j = 0; j < frames; j++) {
+            if (frame[j] == pages[i]) {
+                found = 1;
+                break;
+            }
+        }
+        if (!found) {
+            if (i < frames) {
+                frame[i] = pages[i];
+            } else {
+                farthest = -1;
+                idx = -1;
+                for (j = 0; j < frames; j++) {
+                    int next_use = -1;
+                    for (k = i + 1; k < n; k++) {
+                        if (pages[k] == frame[j]) {
+                            next_use = k;
+                            break;
+                        }
+                    }
+                    if (next_use == -1) {
+                        idx = j;
+                        break;
+                    } else if (next_use > farthest) {
+                        farthest = next_use;
+                        idx = j;
+                    }
+                }
+                frame[idx] = pages[i];
+            }
+            faults++;
+        }
+
+        printf("Frames: ");
+        for (j = 0; j < frames; j++) {
+            if (frame[j] != -1) printf("%d ", frame[j]);
+            else printf("- ");
+        }
+        printf("\n");
+    }
+
+    printf("Total Page Faults = %d\n", faults);
+}
+
+int main() {
+    int pages[MAX], n, frames, i;
+
+    printf("Enter number of pages: ");
+    scanf("%d", &n);
+
+    printf("Enter page reference string:\n");
+    for (i = 0; i < n; i++) {
+        scanf("%d", &pages[i]);
+    }
+
+    printf("Enter number of frames (minimum 3): ");
+    scanf("%d", &frames);
+
+    if (frames < 3) {
+        printf("Frame size should be at least 3!\n");
+        return 1;
+    }
+
+    FCFS(pages, n, frames);
+    LRU(pages, n, frames);
+    Optimal(pages, n, frames);
+
+    return 0;
+}

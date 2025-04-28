@@ -1,0 +1,120 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, head, i, j, total = 0;
+    int req[100], temp, disk_size;
+
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+
+    printf("Enter request sequence:\n");
+    for(i = 0; i < n; i++)
+        scanf("%d", &req[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("Enter disk size: ");
+    scanf("%d", &disk_size);
+
+    // ========== SSTF ==========
+    int done[100] = {0}, pos = head;
+    printf("\n--- SSTF ---\n");
+    total = 0;
+    for(i = 0; i < n; i++) {
+        int min = 10000, index = -1;
+        for(j = 0; j < n; j++) {
+            if(!done[j] && abs(pos - req[j]) < min) {
+                min = abs(pos - req[j]);
+                index = j;
+            }
+        }
+        done[index] = 1;
+        total += abs(pos - req[index]);
+        printf("Move to %d\n", req[index]);
+        pos = req[index];
+    }
+    printf("Total Seek Time (SSTF): %d\n", total);
+
+    // ========== SCAN ==========
+    printf("\n--- SCAN ---\n");
+    total = 0;
+    int arr[100];
+    for(i = 0; i < n; i++) arr[i] = req[i];
+    arr[n++] = disk_size - 1; // Add end of disk
+
+    // Sort
+    for(i = 0; i < n-1; i++) {
+        for(j = i+1; j < n; j++) {
+            if(arr[i] > arr[j]) {
+                temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+    }
+
+    pos = head;
+    int idx;
+    for(i = 0; i < n; i++) {
+        if(arr[i] >= head) {
+            idx = i;
+            break;
+        }
+    }
+
+    for(i = idx; i < n; i++) {
+        printf("Move to %d\n", arr[i]);
+        total += abs(pos - arr[i]);
+        pos = arr[i];
+    }
+    for(i = idx-1; i >= 0; i--) {
+        printf("Move to %d\n", arr[i]);
+        total += abs(pos - arr[i]);
+        pos = arr[i];
+    }
+    printf("Total Seek Time (SCAN): %d\n", total);
+
+    // ========== C-LOOK ==========
+    printf("\n--- C-LOOK ---\n");
+    total = 0;
+    n--; // remove the extra disk_size - 1 added for SCAN
+    for(i = 0; i < n-1; i++) {
+        for(j = i+1; j < n; j++) {
+            if(req[i] > req[j]) {
+                temp = req[i];
+                req[i] = req[j];
+                req[j] = temp;
+            }
+        }
+    }
+
+    pos = head;
+    for(i = 0; i < n; i++) {
+        if(req[i] >= head) {
+            idx = i;
+            break;
+        }
+    }
+
+    for(i = idx; i < n; i++) {
+        printf("Move to %d\n", req[i]);
+        total += abs(pos - req[i]);
+        pos = req[i];
+    }
+    if(idx > 0) {
+        total += abs(pos - req[0]);
+        pos = req[0];
+        printf("Jump to %d\n", pos);
+
+        for(i = 0; i < idx; i++) {
+            printf("Move to %d\n", req[i]);
+            total += abs(pos - req[i]);
+            pos = req[i];
+        }
+    }
+    printf("Total Seek Time (C-LOOK): %d\n", total);
+
+    return 0;
+}
